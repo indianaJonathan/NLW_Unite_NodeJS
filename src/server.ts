@@ -1,12 +1,15 @@
 import fastify from "fastify";
 import { z } from "zod";
-import { PrismaClient } from "@prisma/client";
+import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
+import { createEvent } from "./routes/create-event";
+import { registerForEvent } from "./routes/register-for-event";
+import { getEvent } from "./routes/get-event";
+import { getAttendeeBadge } from "./routes/get-attendee-badge";
 
 const app = fastify();
 
-const prisma = new PrismaClient({
-    log: ["query"],
-});
+app.setValidatorCompiler(validatorCompiler);
+app.setSerializerCompiler(serializerCompiler);
 
 const envSchema = z.object({
     NODE_ENV: z
@@ -26,32 +29,13 @@ if (!envServer.success) {
     process.exit(1);
 }
 
+app.register(createEvent);
+app.register(registerForEvent);
+app.register(getEvent);
+app.register(getAttendeeBadge);
+
 export const envServerSchema = envServer.data;
 
-app.post('/events', async (request, reply) => {
-    const createEventSchema = z.object({
-        title: z.string().min(4),
-        details: z.string().nullable(),
-        maximumAttendees: z.number().int().positive().optional(),
-        slug: z.string().optional(),
-    });
-
-    const data = createEventSchema.parse(request.body);
-
-    const event = await prisma.event.create({
-        data,
-        select: {
-            id: true,
-            title: true,
-            details: true,
-            maximumAttendees: true,
-            slug: true,
-        }
-    });
-
-    return reply.status(201).send({ event });
-})
-
 app.listen({ port: envServerSchema.APP_PORT }).then(() => {
-    console.log(`HTTP Server running at port ${envServerSchema.APP_PORT} in ${envServerSchema.NODE_ENV} mode`);
+    console.log(`Servidor HTTP rodando na porta ${envServerSchema.APP_PORT} no modo ${envServerSchema.NODE_ENV}`);
 });

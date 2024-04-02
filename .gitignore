@@ -7,3 +7,4 @@ api.http
 
 # Database
 prisma/dev.db
+prisma/dev.db-journal
