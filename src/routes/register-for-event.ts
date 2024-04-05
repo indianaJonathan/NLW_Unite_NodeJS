@@ -2,10 +2,14 @@ import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
+import { BadRequest } from "./_errors/bad-request";
+import { NotFound } from "./_errors/not-found";
 
 export async function registerForEvent(app: FastifyInstance) {
     app.withTypeProvider<ZodTypeProvider>().post('/events/:eventId/attendees', {
         schema: {
+            summary: 'Registra um participante em um evento',
+            tags: ['attendees'],
             body: z.object({
                 name: z.string().min(4),
                 email: z.string().email(),
@@ -41,7 +45,7 @@ export async function registerForEvent(app: FastifyInstance) {
             }
         });
 
-        if (existingRegister) throw new Error(`Participante ${existingRegister.name} já está registrado no evento ${existingRegister.event.title}`);
+        if (existingRegister) throw new BadRequest(`Participante ${existingRegister.name} já está registrado no evento ${existingRegister.event.title}`);
 
         const [event, ammountOfAttendees] = await Promise.all([
             prisma.event.findUnique({
@@ -56,7 +60,7 @@ export async function registerForEvent(app: FastifyInstance) {
             }),
         ]);
 
-        if (!event) throw new Error('Evento não encontrado');
+        if (!event) throw new NotFound('Evento não encontrado');
 
         if (event.maximumAttendees && ammountOfAttendees >= event.maximumAttendees) throw new Error('Limite de participantes atingido!');
 
