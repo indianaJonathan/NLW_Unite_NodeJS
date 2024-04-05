@@ -1,3 +1,5 @@
+![nlw_logo](https://github.com/indianaJonathan/NLW_Unite_NodeJS/assets/22666576/0d7cf97d-ff13-4ca3-a5eb-37a62920ac5c)
+
 # pass.in
 O pass.in é uma aplicação de gestão de participantes em eventos presenciais.
 
