@@ -58,14 +58,10 @@ npm run db:seed
 ```
 
 ## Deploy
-Gerar arquivos de deploy:
-```
-npm run build
-```
+**Você deve ter o docker instalado para executar os comandos à seguir**
 
-Iniciar projeto:
 ```
-npm run start
+docker-compose up --build -d
 ```
 
 ## Requisitos
